@@ -6,7 +6,6 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var boardSchema = new mongoose.Schema({
   title: String,
   headerImage: String,
-  description: String,
   userId: {type: String, ref: User},
   cards: [{type: ObjectId, ref: Card}]
 });

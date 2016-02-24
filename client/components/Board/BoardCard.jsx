@@ -39,6 +39,7 @@ var BoardCard = React.createClass({
 		return (
 			<div>
 				<div className="userCardInfo">
+<<<<<<< HEAD
 					<h4>{this.userTitle} </h4>
 					<p>{this.props.description}</p>
 				</div>
@@ -51,6 +52,20 @@ var BoardCard = React.createClass({
 
 				<button onClick={this.handleClick}>Remove Card</button>
 
+=======
+					<h4> {this.userTitle} </h4>
+					<p>{this.props.description}</p>
+				</div>
+
+				<div className="fourSquareData">
+					<h3> {this.venueTitle} </h3>
+					<h4> {this.catagory} </h4>
+					<h4> {this.address} </h4>
+				</div>
+
+				<button onClick={this.handleClick}>Remove Card</button>
+
+>>>>>>> Resolve merge conflict
 			</div>
 		)
 	}

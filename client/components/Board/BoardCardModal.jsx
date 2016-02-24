@@ -62,6 +62,7 @@ var BoardCardModal = React.createClass({
 					</div>
 
 
+<<<<<<< HEAD
 					<div className="fourSquareData">
 						<Search/>
 						 Search will then display all of the results into the bottom div */}
@@ -73,13 +74,21 @@ var BoardCardModal = React.createClass({
 						<h4> {this.catagory} </h4>
 						<h4> {this.address} </h4>
 					</div>
+=======
+					<input placeholder="Date" name="date" value={this.state.date} onChange={this.handleInputChange}/>
+
+					{/* Get information from App Search places, and save on state/db */}
+>>>>>>> Resolve merge conflict
 
 					<input onSubmit={this.props.onSubmit.bind(null, this)} placeholder="Search"/>
 
 					{/* This button will change the state of submitted to be true */}
 					<button onClick={this.handleClick}> Save Event </button>
 				</form>
+<<<<<<< HEAD
 
+=======
+>>>>>>> Resolve merge conflict
 			</div>
 		)
 

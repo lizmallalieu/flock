@@ -64,7 +64,7 @@ module.exports = {
       venueId: cardVenue,
       createdAt: new Date,
       startTime: null
-      
+
     })
     .then(function (card) {
       updateBoard({_id: board._id},
@@ -132,11 +132,11 @@ module.exports = {
     // REMOVE CARD //
     /////////////////
     removeOne: function (req, res, next) {
-      var uid = req.body.id;
+      var id = req.body._id;
 
-      removeCard({_id: uid})
+      removeCard({_id: id})
       .then(function (status) {
-        res.status(201).json(status);
+        res.status(200).json(status);
       })
       .fail(function (err) {
         console.error('Could not delete card');

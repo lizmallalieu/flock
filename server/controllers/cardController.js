@@ -13,7 +13,7 @@ var createCard = Q.nbind(Card.create, Card);
 var updateCard = Q.nbind(Card.findOneAndUpdate, Card);
 var removeCard = Q.nbind(Card.remove, Card);
 var populateVenues = Q.nbind(Card.populate, Card);
-
+var populateCards = Q.nbind(Board.populate, Board);
 var updateBoard = Q.nbind(Board.findOneAndUpdate, Board);
 
 /* ----------------------- */
@@ -52,56 +52,52 @@ module.exports = {
     var cardVenue = req.body.venueId;
     var cardStartTime = req.body.startTime;
     var cardImage = req.body.cardImage;
+    var board = req.body.board;
+    console.log('board', board);
     var cards = board.cards;
-    var currentCard = cards[0];
 
-    // see if the card already exists
-    findCard({cardId: currentCard}) // change title to permalink
+    createCard({
+      userTitle: cardTitle,
+      description: cardDescription,
+      venueId: cardVenue,
+      createdAt: new Date,
+      startTime: null
+    })
     .then(function (card) {
-      if (card) {
-        console.error('Card already exists');
-        throw new Error('Card already exists');
-      }
-      // otherwise create a new card
-      createCard({ // might need return statement
-        userTitle: cardTitle,
-        description: cardDescription,
-        venueId: cardVenue,
-        createdAt: new Date,
-        startTime: null
-      })
-      .then(function (card) {
-        updateCard({cardId: currentCard}, // might need return statement
-          {$push: {cards: cardId}},
-          {new: true}) // returns updated document
-          .then(function (card) {
-            var opts = [{path: 'cards', model: 'Card'}];
-            populateVenues(card, opts)
-            .then(function (populatedCard) {
-              if (populatedCard) {
-                res.status(200).json(populatedCard);
-              }
+      updateBoard({_id: board._id},
+        {$push: {cards: card._id}},
+        {new: true})
+        .then(function (board) {
+          var opts = [{path: 'boards', model: 'Board'}];
+          populateCards(board, opts)
+            .then(function(populatedCards) {
+              var opts = [{path: 'cards', model: 'Card'}];
+              populateVenues(card, opts)
+              .then(function (populatedCard) {
+                if (populatedCard) {
+                  res.status(200).json(populatedCard);
+                }
+              })
+              .fail(function (err) {
+              console.error('Could not populate venues on card');
+              throw new Error('Could not populate venues on card');
+              });
             })
             .fail(function (err) {
               console.error('Could not populate card');
               throw new Error('Could not populate card');
             });
-          })
-          .fail(function (err) {
-            console.error('Could not update card', err);
-            throw new Error('Could not update card', err);
-          });
         })
         .fail(function (err) {
-          console.error('Could not create new card', err);
-          throw new Error('Could not create new card', err);
+          console.error('Could not update card', err);
+          throw new Error('Could not update card', err);
         });
-      })
-      .fail(function (err) {
-        console.error('Could not find card', err);
-        throw new Error('Could not find card', err);
-      });
-    },
+    })
+    .fail(function (err) {
+      console.error('Could not create new card', err);
+      throw new Error('Could not create new card', err);
+    });
+  },
 
     /////////////////
     // UPDATE CARD //

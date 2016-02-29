@@ -24,23 +24,25 @@ module.exports = {
   ////////////////
   // FETCH CARD //
   ////////////////
-  fetchOne: function (req, res, next) {
-    var title = req.body.title;
-    var board = req.body.board;
-    var boardId = board._id;
-    var cards = board.cards;
 
-    var opts = [{path: 'cards', model: 'Card'}];
-    findCard(board, opts)
-    .then(function (populatedBoard) {
-      if (populatedBoard) {
-        res.status(200).json(populatedBoard);
-      }
-    })
-    .fail(function (err) {
-      console.error('Could not populate boards');
-      throw new Error('Could not populate boards');
-    });
+  fetchOne: function (req, res, next) {
+  //   var title = req.body.title;
+  //   var board = req.body.board;
+  //   var boardId = board._id;
+  //   var cards = board.cards;
+
+  //   var opts = [{path: 'cards', model: 'Card'}];
+  //   findCard(board, opts)
+  //   .then(function (populatedBoard) {
+  //     if (populatedBoard) {
+  //       res.status(200).json(populatedBoard);
+  //     }
+  //   })
+  //   .fail(function (err) {
+  //     console.error('Could not populate boards');
+  //     throw new Error('Could not populate boards');
+  //   });
+    next();
   },
 
   /////////////////
@@ -62,6 +64,7 @@ module.exports = {
       venueId: cardVenue,
       createdAt: new Date,
       startTime: null
+      
     })
     .then(function (card) {
       updateBoard({_id: board._id},
@@ -103,15 +106,18 @@ module.exports = {
     // UPDATE CARD //
     /////////////////
     updateOne: function (req, res, next) {
+      console.log('request.body = ', req.body);
       var update = req.body;
-      var uid = update.id;
-      delete update.id;
+      var cardId = update._id;
+      delete update._id;
       delete update.createdAt;
+      console.log('update', update);
 
       // allows update of card name, desc, venue
-      updateCard({_id: uid}, update, {new: true})
+      updateCard({_id: cardId}, update, {new: true})
       .then(function (card) {
         if (!card) {
+          console.log('in if statement but error');
           throw new Error('Card: %s does not exist', card);
         } else {
           res.status(201).json(card);

@@ -1,18 +1,1 @@
-@font-face {
-    font-family: "Maxwell";
-    src: url("../assets/typeface/maxwell-regular.ttf");
-}
-@font-face {
-    font-family: "Maxwell";
-    src: url("../assets/typeface/maxwell-bold.ttf");
-    font-weight: bold;
-}
-@font-face {
-    font-family: "Maxwell";
-    src: url("../assets/typeface/maxwell-light.ttf");
-    font-style: light;
-}
 
-body {
-	font-family: Maxwell, monospace;
-}

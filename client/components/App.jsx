@@ -1,94 +1,169 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var ReactRouter = require('react-router');
+import React from 'react'
+import ReactDOM from 'react-dom'
+import {Router, Route, browserHistory, hashHistory, IndexRoute} from 'react-router'
 
-var configJSON = require('../../config.JSON');
-var configJS = require('../../config.js');
+import mockState from './lists/mockState'
+import apiInfo from '../../config'
+window.FOURSQUARE_CLIENT_ID = apiInfo.foursquare.client_ID
+window.FOURSQUARE_CLIENT_SECRET = apiInfo.foursquare.client_secret
+window.ZIPCODEAPI_KEY = apiInfo.zipcode.zipcodeapi_key
 
-var apiInfo = require('../../config.js');
-var FOURSQUARE_CLIENT_ID = apiInfo.foursquare.client_ID
-var FOURSQUARE_CLIENT_SECRET = apiInfo.foursquare.client_secret
+/*--------------------*/
+/*     COMPONENTS     */
+/*--------------------*/
 
-console.log(configJSON);
+import Nav from './Nav'
+import Search from './Search'
+import Feed from './feed/Feed'
+import Card from './Card'
 
-// main components
-var Nav = require('./Nav.jsx');
-var Search = require('./Search.jsx');
-// board components
-var Board = require('./board/Board.jsx');
-var BoardCard = require('./board/BoardCard.jsx');
-var BoardCardModal = require('./board/BoardCardModal.jsx');
-// feed components
-// var AuthModal = require('./feed/AuthModal.jsx');
-// var Feed = require('./feed/Feed.jsx');
-// var FeedCard = require('./feed/FeedCard.jsx');
-// user components
-// var BoardModal = require('./user/BoardModal.jsx');
-// var User = require('./user/User.jsx');
-// var UserCard = require('./user/UserCard.jsx');
+import User from './user/User'
+import AuthModal from './feed/AuthModal'
 
+import Board from './board/Board'
+import BoardCard from './board/BoardCard'
+import BoardModal from './board/BoardModal'
 
-var App = React.createClass({
-  getInitialState: function () {
-    return {
-      user: {
-        _id: '1234567890',
-        username: 'John Doe',
-        boards: [],
-        home: 94608
-      },
-      location: {
-        city: 'Emeryville',
-        state: 'CA',
-        zip: 94608
-      },
-      locations: ['San Francisco, CA', 'New York, NY', 'Seattle, WA']
-    };
-  },
+/*-------------*/
+/*     App     */
+/*-------------*/
 
-  searchPlace: function (query, callback) {
-      var city = this.state.location.city.split(' ').join('+');
-      city += ',+' + this.state.location.state;
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = mockState
+  }
 
-      console.log('Searching Foursquare for %s in %s', query, city);
+  setUser = (user) => {
+    this.setState({user: user})
+  }
 
-      $.get('https://api.foursquare.com/v2/venues/search?client_id='+FOURSQUARE_CLIENT_ID+'&client_secret='+FOURSQUARE_CLIENT_SECRET+'&v=20130815&near='+city+'&query='+query)
-      .done(function(data) {
-        console.log("WORKS!");
-        callback(data);
-        }).fail(function(err) {
-        console.log('there was an error')
-        callback(err);
-      });
+  setBoards = (boards) => {
+    this.setState({boards: boards})
+  }
 
-    //Query will come from BoardCardModal.
-    console.log('Searching Place...');
-    return;
-  },
+  searchPlace = (query, callback) => {
+    const url = 'https://api.foursquare.com/v2/venues/search';
+    const params = {
+      client_id: FOURSQUARE_CLIENT_ID,
+      client_secret: FOURSQUARE_CLIENT_SECRET,
+      v: 20130815,
+      near: this.state.location.zipcode,
+      query: query
+    }
 
-  explorePlace: function (query) {
+    $.get(url, params)
+    .done(function(data) {
+      callback(data)
+      }).fail(function(err) {
+      callback(err)
+    })
+  }
+
+  searchVenue = (venueId, callback) => {
+    const url = `https://api.foursquare.com/v2/venues/${venueId}`
+    const params = {
+      client_id: FOURSQUARE_CLIENT_ID,
+      client_secret: FOURSQUARE_CLIENT_SECRET,
+      v: 20160225
+    }
+
+    $.get(url, params)
+    .done(function(data) {
+      console.log("GOT VENUE DATA!")
+      callback(data)
+      }).fail(function(err) {
+      console.log('there was an error')
+      callback(err)
+    })
+  }
+
+  explorePlace = (query) => {
     // Foursquare Explore API call to return inspiration data
-    console.log('Exploring Place...');
-    return;
-  },
+  }
 
-  render: function () {
+  render() {
+    const containStyle = {
+      'marginTop': '50px',
+      'padding': '20px 30px'
+    }
+
+    var children = React.cloneElement(this.props.children, {
+      status: this.state,
+      setUser: this.setUser,
+      setBoards: this.setBoards,
+      style: containStyle
+    })
+
     return (
-      <div className="container">
+      <div>
         <Nav
           searchPlace={this.searchPlace}
           explorePlace={this.explorePlace}
           locations={this.state.locations}
+          setUser={this.setUser.bind(this)}
+          user={this.state.user}
         />
-        <main>
-          {
-            // we think React Router goes in here somehow
-            // so that it renders Board
-          }
-        </main>
+        {children}
       </div>
-    );
+    )
   }
-});
+}
 
-ReactDOM.render(<App />, document.getElementById('app'));
+/*------------------*/
+/*     HANDLERS     */
+/*------------------*/
+
+class BoardHandler extends React.Component {
+  render() {
+    return (
+      <Board
+        board={this.props.status.boards[2]}
+        venues={this.props.status.venues}
+        style={this.props.style}
+      />
+    )
+  }
+}
+
+class UserHandler extends React.Component {
+  render() {
+    return (
+      <User
+        user={this.props.status.user}
+        boards={this.props.status.boards}
+        venues={this.props.status.venues}
+        setUser={this.props.setUser}
+        setBoards={this.props.setBoards}
+        style={this.props.style}
+      />
+    )
+  }
+}
+
+class FeedHandler extends React.Component {
+  render() {
+    return (
+      <Feed
+        cards={this.props.status.cards}
+        venues={this.props.status.venues}
+        style={this.props.style}
+      />
+    )
+  }
+}
+
+/*----------------*/
+/*     ROUTER     */
+/*----------------*/
+
+ReactDOM.render(
+  <Router history={browserHistory}>
+    <Route path='/' component={App}>
+      <IndexRoute component={FeedHandler}/>
+      <Route path='/*/*' component={BoardHandler}/>
+      <Route path='/*' component={UserHandler}/>
+    </Route>
+  </Router>,
+  document.getElementById('app')
+)

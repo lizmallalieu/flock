@@ -9,12 +9,13 @@ module.exports = {
     path.join(__dirname, '/client/components/App.jsx')
   ],
   resolve: {
+    root: path.resolve('/public'),
     extensions: ['', '.js', '.jsx']
   },
   output: {
-    path: path.join(__dirname, '/public'),
     filename: 'app.js',
-    publicPath: '/client'
+    path: path.join(__dirname, '/public'),
+    publicPath: '/public'
   },
   module: {
     loaders: [
